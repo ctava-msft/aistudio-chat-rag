@@ -1,11 +1,11 @@
 ---
-description: This template sets up Azure AI Studio with managed network and connected resources.
+description: This template sets up Azure AI Studio with connected resources.
 page_type: sample
 products:
 - azure
 - azure ai studio
 - azure-resource-manager
-urlFragment: aistudio-managed-network
+urlFragment: aistudio-chat-rag
 languages:
 - bicep
 - json

@@ -1,3 +1,4 @@
 azure-ai-ml
 azure-identity
+openai
 python-dotenv
