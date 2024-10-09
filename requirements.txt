@@ -1,4 +1,7 @@
 azure-ai-ml
 azure-identity
+azure-mgmt-cognitiveservices
+azure-search
+azure-search-documents
 openai
 python-dotenv

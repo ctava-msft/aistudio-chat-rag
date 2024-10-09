@@ -4,9 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-#azure_openai_endpoint = os.getenv("ENDPOINT_URL", "/subscriptions/1c47c29b-10d8-4bc6-a024-05ec921662cb/resourceGroups/rg-yale-rag/providers/Microsoft.CognitiveServices/accounts/ais-fg2zy")
-azure_openai_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT_URL", "")
-azure_openai_key = os.getenv("AZURE_OPENAI_API_KEY", "")
+azure_openai_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT", "")
+azure_openai_key = os.getenv("AZURE_OPENAI_KEY", "")
 model_chat_deployment = os.getenv("MODEL_CHAT_DEPLOYMENT_NAME", "")
 model_embeddings_deployment = os.getenv("MODEL_EMBEDDINGS_DEPLOYMENT_NAME", "")
 aisearch_endpoint = os.getenv("AZURE_AISEARCH_ENDPOINT", "")
