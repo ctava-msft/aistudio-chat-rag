@@ -39,6 +39,11 @@ pip install -r requirements.txt
 
 Copy sample.env to .env and enter values for the parameters.
 
+## Scripts
+
+Run create.py to create AISearch semantic index.
+
+Run query.py to query AI search and open ai
 
 ## Learn more
 

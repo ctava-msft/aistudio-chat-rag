@@ -19,7 +19,8 @@ required_vars = [
     "AZURE_AISEARCH_KEY",
     "AZURE_AISEARCH_INDEX",
     "MODEL_CHAT_DEPLOYMENT_NAME",
-    "MODEL_EMBEDDINGS_DEPLOYMENT_NAME"
+    "MODEL_EMBEDDINGS_DEPLOYMENT_NAME",
+    "SYSTEM_MESSAGE"
 ]
  
 for var in required_vars:
@@ -34,7 +35,7 @@ def generate_embeddings(text):
     }
     payload = {
         "input": text,
-        "model": os.getenv("AZURE_EMBEDDING_DEPLOYMENT")
+        "model": os.getenv("MODEL_EMBEDDINGS_DEPLOYMENT_NAME")
     }
     try:
         response = requests.post(
@@ -42,6 +43,7 @@ def generate_embeddings(text):
             headers=headers,
             json=payload
         )
+        print(response.json())
         response.raise_for_status()
         return response.json()['data'][0]['embedding']
     except requests.exceptions.RequestException as e:
@@ -50,28 +52,27 @@ def generate_embeddings(text):
  
 def query_azure_search(query, search_type='hybrid'):
     try:
-        credential = AzureKeyCredential(os.getenv("AZURE_SEARCH_API_KEY"))
-        search_client = SearchClient(endpoint=os.getenv("AZURE_SEARCH_API_ENDPOINT"),
-                                     index_name=os.getenv("AZURE_SEARCH_INDEX_NAME"),
+        credential = AzureKeyCredential(os.getenv("AZURE_AISEARCH_KEY"))
+        search_client = SearchClient(endpoint=os.getenv("AZURE_AISEARCH_ENDPOINT"),
+                                     index_name=os.getenv("AZURE_AISEARCH_INDEX"),
                                      credential=credential)
-       
-        vector_query = VectorizedQuery(
+        v_query = VectorizedQuery(
             vector=generate_embeddings(query),
-            k_nearest_neighbors=10,
+            k_nearest_neighbors=3,
             fields="text_vector"
         )
-       
+        print(v_query)
         if search_type == 'vector':
             results = search_client.search(
                 search_text=None,
-                vector_queries=[vector_query],
+                vector_queries=[v_query],
                 select=["chunk_id", "parent_id", "chunk", "title"],
                 top=20
             )
         elif search_type == 'hybrid':
             results = search_client.search(
                 search_text=query,
-                vector_queries=[vector_query],
+                vector_queries=[v_query],
                 select=["chunk_id", "parent_id", "chunk", "title"],
                 top=20
             )
@@ -92,12 +93,8 @@ def query_azure_openai(prompt, search_results):
    
     payload = {
         "messages": [
-            {"role": "system", "content": """You are an AI assistant specialized in providing information about employee benefits
-             for a healthcare institution. Your knowledge is based on the institution's employee benefits documents. Provide accurate,
-             clear, and concise information about various benefits, policies, and procedures. If asked about specific details or
-             calculations, always refer to the most up-to-date information in the provided search results. If you're unsure about any
-             information, state that clearly and suggest where the employee might find more detailed or current information."""},
-            {"role": "user", "content": f"Based on the following search results from our employee benefits documents, please answer this question: {prompt}\n\nSearch Results: {content[:4000]}"}
+            {"role": "system", "content": f"""{os.getenv("SYSTEM_MESSAGE")}"""},
+            {"role": "user", "content": f"Based on the following search results, please answer this question: {prompt}\n\nSearch Results: {content[:4000]}"}
         ],
         "max_tokens": 1000,
         "temperature": 0.3,
@@ -155,22 +152,23 @@ def main():
     if query:
         vector_results = query_azure_search(query, 'vector')
         hybrid_results = query_azure_search(query, 'hybrid')
+        if vector_results:
+            print("Vector Search Results:")
+            for result in vector_results:
+                print(f"Title: {result['title']}")
+                print(f"Chunk ID: {result['chunk_id']}")
+                print(f"Parent ID: {result['parent_id']}")
+                print(f"Score: {result['@search.score']}")
+                print(f"Content: {result['chunk'][:100]}...\n")
        
-        print("Vector Search Results:")
-        for result in vector_results:
-            print(f"Title: {result['title']}")
-            print(f"Chunk ID: {result['chunk_id']}")
-            print(f"Parent ID: {result['parent_id']}")
-            print(f"Score: {result['@search.score']}")
-            print(f"Content: {result['chunk'][:100]}...\n")
-       
-        print("\nHybrid Search Results:")
-        for result in hybrid_results:
-            print(f"Title: {result['title']}")
-            print(f"Chunk ID: {result['chunk_id']}")
-            print(f"Parent ID: {result['parent_id']}")
-            print(f"Score: {result['@search.score']}")
-            print(f"Content: {result['chunk'][:100]}...\n")
+        if vector_results:
+            print("\nHybrid Search Results:")
+            for result in hybrid_results:
+                print(f"Title: {result['title']}")
+                print(f"Chunk ID: {result['chunk_id']}")
+                print(f"Parent ID: {result['parent_id']}")
+                print(f"Score: {result['@search.score']}")
+                print(f"Content: {result['chunk'][:100]}...\n")
        
         combined_results = vector_results + hybrid_results
        
