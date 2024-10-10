@@ -29,8 +29,9 @@ fields = [
     SearchField(
         name="text_vector",
         type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
-        dimensions=1536,
-        vectorSearchConfiguration="vector-config"
+        vector_search_dimensions=1536,
+        vector_search_configuration="vector-config",
+        vector_search_profile="default"
     )
 ]
 

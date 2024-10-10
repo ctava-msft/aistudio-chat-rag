@@ -10,11 +10,11 @@ languages:
 - bicep
 - json
 ---
-# Azure AI Studio Managed Network
+# Azure AI Studio Chat RAG
 
 [![Deploy to Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fctava-msft%2Faistudio-chat-rag%2Fmain%2Fazuredeploy.json)
 
-This template sets up Azure AI Studio with a managed network and connected resources.
+This template sets up Azure AI Studio with connected resources.
 
 Azure AI Studio is built on Azure Machine Learning as the primary resource provider and takes a dependency on the Cognitive Services (Azure AI Services) resource provider to surface model-as-a-service endpoints for Azure Speech, Azure Content Safety, and Azure OpenAI service.
 
